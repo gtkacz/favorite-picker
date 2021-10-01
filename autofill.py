@@ -54,7 +54,7 @@ def main():
     
     list_str = ', '.join(all)
     
-    with open('./picker.html', 'r') as file:
+    with open('./index.html', 'r') as file:
         soup = BeautifulSoup(file, features='lxml')
 
     html_str = (str(soup)).split('\n')
@@ -74,7 +74,7 @@ def main():
         
     html_final = ('\n'.join(html_str)).encode('utf8')
     
-    with open('picker.html', 'wb') as outf:
+    with open('index.html', 'wb') as outf:
         outf.truncate(0)
         outf.write(html_final)
     
