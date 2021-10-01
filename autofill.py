@@ -46,9 +46,11 @@ def main():
     
     for i in tqdm(range(2, 113)):
         xpathselector = f'//*[@id="list-container"]/div[4]/div/table/tbody[{i}]/tr[1]/td[4]/a[1]'
+        #//*[@id="list-container"]/div[4]/div/table/tbody[2]/tr[1]/td[3]/a/img
         current = dom.xpath(xpathselector)[0].text
         if not '(Music)' in current.split():
-            all.append(current)
+            string = f"{{id: '{current}'}}"
+            all.append(string)
     
     list_str = ', '.join(all)
     
