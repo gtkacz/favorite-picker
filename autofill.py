@@ -1,3 +1,4 @@
+import re
 from tqdm import tqdm
 from lxml import etree
 from bs4 import BeautifulSoup
@@ -57,10 +58,12 @@ def main():
             
             current = dom.xpath(xpathselector)[0].text
             current_img = dom.xpath(imgxpathselector)[0].text
-            print(type(current_img), current_img)
+            #print(type(current_img), current_img)
             
             if not '(Music)' in current.split():
-                string = f"{{id: '{current[0]}', name: '{current}'}}"
+                id = re.sub(r'[^A-Za-z0-9 ]+', '', current)
+                id = (id.replace(' ', '-')).lower()
+                string = f"{{id: '{id}', name: '{current}'}}"
                 all.append(string)
         
         list_str = ', '.join(all)
