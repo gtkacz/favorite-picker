@@ -50,8 +50,7 @@ def tag_cleanup(html):
     return string
 
 def main():
-    user = 'Pao_com_Ovo'
-    #user = GUI()
+    user = GUI()
     url_list = f'https://myanimelist.net/animelist/{user}?status=2'
     url_user = f'https://myanimelist.net/profile/{user}'
 
