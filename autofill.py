@@ -11,8 +11,38 @@ from selenium.webdriver.support.ui import WebDriverWait
 from tkinter import Tk, ttk, messagebox
 from tkinter.filedialog import askopenfilename
 
+def GUI():
+    window = Tk()
+    window.title('Favorite Picker MAL')
+    window.resizable(False, False)
+    window.eval('tk::PlaceWindow . center')
+    
+    USER = ''
+    
+    USER_ENTRY = ttk.Entry(justify = 'center', exportselection = 0)
+    USER_LABEL = ttk.Label(text = 'Insert your MAL username:', justify = 'center')
+    
+    def isClickedFunction():
+        nonlocal USER
+        
+        USER = USER_ENTRY.get()
+        
+        window.destroy()
+        
+    BUTTON = ttk.Button(text = 'Generate', command = isClickedFunction)
+    
+    USER_LABEL.grid(row=0, column=0, pady=10)
+    USER_ENTRY.grid(row=1, column=0, padx=25)
+    
+    BUTTON.grid(row=2, column=0, pady=15)
+    
+    window.mainloop()
+    
+    return USER
+
 def main():
-    user = 'Pao_com_Ovo'
+    #user = 'Pao_com_Ovo'
+    user = GUI()
     url_list = f'https://myanimelist.net/animelist/{user}?status=2'
     url_user = f'https://myanimelist.net/profile/{user}'
 
