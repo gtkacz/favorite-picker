@@ -1,4 +1,4 @@
-import re, sys, html
+import re, sys, html, requests
 from tqdm import tqdm
 from lxml import etree
 from bs4 import BeautifulSoup
@@ -100,29 +100,13 @@ def main():
                 id = re.sub(r'[^A-Za-z0-9 ]+', '', s)
                 id = (id.replace(' ', '-')).lower()
                 name = html.unescape(s)
-                string = f"{{id: '{id}', name: '{name}'}}"
+                img = f'./img/{id}.webp'
+                string = f"{{id: '{id}', name: '{name}', image: '{img}'}}"
                 all.append(string)
-                print(string)
-        
-        sys.exit()
-        # for i in images:
-        #     img_url = i['src']
-        #     save_to = f'{str(CUR_DIR)}/'
-        #     urllib.request.urlretrieve(img_url, save_to)
-        
-        for i in tqdm(range(2, qty + 1)):
-            xpathselector = f'//*[@id="list-container"]/div[4]/div/table/tbody[{i}]/tr[1]/td[4]/a[1]'
-            imgxpathselector = f'//*[@id="list-container"]/div[4]/div/table/tbody[{i}]/tr[1]/td[3]/a/img'
-            
-            current = dom.xpath(xpathselector)[0].text
-            current_img = dom.xpath(imgxpathselector)[0].text
-            #print(type(current_img), current_img)
-            
-            if not '(Music)' in current.split():
-                id = re.sub(r'[^A-Za-z0-9 ]+', '', current)
-                id = (id.replace(' ', '-')).lower()
-                string = f"{{id: '{id}', name: '{current}'}}"
-                all.append(string)
+                
+                r = requests.get(image)
+                with open(img, 'wb') as f:
+                    f.write(r.content)
         
         list_str = ', '.join(all)
         
