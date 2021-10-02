@@ -1,4 +1,4 @@
-import re
+import re, sys, html
 from tqdm import tqdm
 from lxml import etree
 from bs4 import BeautifulSoup
@@ -40,9 +40,18 @@ def GUI():
     
     return USER
 
+def tag_cleanup(html):
+    html = str(html)
+    cleanr = re.compile('<.*?>')
+    #return re.sub(cleanr, '', html)
+    string = (re.sub(cleanr, '', html))
+    string = string.replace('\n', '')
+    string = string.replace('\t', '')
+    return string
+
 def main():
-    #user = 'Pao_com_Ovo'
-    user = GUI()
+    user = 'Pao_com_Ovo'
+    #user = GUI()
     url_list = f'https://myanimelist.net/animelist/{user}?status=2'
     url_user = f'https://myanimelist.net/profile/{user}'
 
@@ -81,6 +90,25 @@ def main():
         dom = etree.HTML(str(soup))
         
         all = []
+        imgs = []
+        
+        for anime in soup.find_all('tr', class_ = 'list-table-data'):
+            image = anime.find_all('img', src=True, class_ = 'hover-info')[0]['src']
+            name = anime.find_all('a', href=True, class_ = 'sort')[1]
+            s = tag_cleanup(name)
+            if s and s[0] != ' ' and (not '(Music)' in s.split()):
+                id = re.sub(r'[^A-Za-z0-9 ]+', '', s)
+                id = (id.replace(' ', '-')).lower()
+                name = html.unescape(s)
+                string = f"{{id: '{id}', name: '{name}'}}"
+                all.append(string)
+                print(string)
+        
+        sys.exit()
+        # for i in images:
+        #     img_url = i['src']
+        #     save_to = f'{str(CUR_DIR)}/'
+        #     urllib.request.urlretrieve(img_url, save_to)
         
         for i in tqdm(range(2, qty + 1)):
             xpathselector = f'//*[@id="list-container"]/div[4]/div/table/tbody[{i}]/tr[1]/td[4]/a[1]'
