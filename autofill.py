@@ -46,15 +46,20 @@ def main():
     
     for i in tqdm(range(2, 113)):
         xpathselector = f'//*[@id="list-container"]/div[4]/div/table/tbody[{i}]/tr[1]/td[4]/a[1]'
-        #//*[@id="list-container"]/div[4]/div/table/tbody[2]/tr[1]/td[3]/a/img
+        #imgxpathselector = f'//*[@id="list-container"]/div[4]/div/table/tbody[{i}]/tr[1]/td[3]/a/img'
+        imgxpathselector = f'//*[@id="list-container"]/div[4]/div/table/tbody[{i}]/tr[1]/td[3]/a'
+        
         current = dom.xpath(xpathselector)[0].text
+        current_img = dom.xpath(imgxpathselector)[0].text
+        print(type(current_img), current_img)
+        
         if not '(Music)' in current.split():
             string = f"{{id: '{current}'}}"
             all.append(string)
     
     list_str = ', '.join(all)
     
-    with open('./index.html', 'r') as file:
+    with open('./picker.html', 'r') as file:
         soup = BeautifulSoup(file, features='lxml')
 
     html_str = (str(soup)).split('\n')
@@ -74,7 +79,7 @@ def main():
         
     html_final = ('\n'.join(html_str)).encode('utf8')
     
-    with open('index.html', 'wb') as outf:
+    with open('picker.html', 'wb') as outf:
         outf.truncate(0)
         outf.write(html_final)
     
