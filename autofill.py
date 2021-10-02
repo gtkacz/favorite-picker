@@ -8,9 +8,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
 from tkinter import Tk, ttk, messagebox
+from tkinter.filedialog import askopenfilename
 
 def main():
-    url = f'https://myanimelist.net/animelist/Pao_com_Ovo?status=2'
+    user = 'Pao_com_Ovo'
+    url_list = f'https://myanimelist.net/animelist/{user}?status=2'
+    url_user = f'https://myanimelist.net/profile/{user}'
 
     CUR_DIR = Path(__file__).parent
     PROGRAM = 'chromedriver.exe'
@@ -21,17 +24,25 @@ def main():
     
     try:
         browser = webdriver.Chrome(PATH, options=OPTIONS)
-        browser.get(url)
         
     except WebDriverException:
-        OPTIONS.binary_location = 'D:\Program Files (x86)\Google\Chrome\Application\chrome.exe'
+        BINARY = 'D:\Program Files (x86)\Google\Chrome\Application\chrome.exe'
+        # BINARY = askopenfilename()
+        OPTIONS.binary_location = BINARY
         OPTIONS.add_experimental_option('excludeSwitches', ['enable-logging'])
         browser = webdriver.Chrome(PATH, options=OPTIONS)
-        browser.get(url)
     
     try:
-        browser.get(url)
-        WebDriverWait(browser, 60).until(expected_conditions.presence_of_element_located((By.CLASS_NAME, 'data image')))
+        browser.get(url_user)
+        WebDriverWait(browser, 10).until(expected_conditions.presence_of_element_located((By.CLASS_NAME, 'completed')))
+        source = browser.page_source
+        soup = BeautifulSoup(source, 'html.parser')
+        dom = etree.HTML(str(soup))
+        xpathselector = '//*[@id="statistics"]/div[1]/div[1]/div[3]/ul[1]/li[2]/span'
+        qty = int(dom.xpath(xpathselector)[0].text)
+        
+        browser.get(url_list)
+        WebDriverWait(browser, 10).until(expected_conditions.presence_of_element_located((By.CLASS_NAME, 'image')))
         source = browser.page_source
         browser.close()
         
@@ -40,11 +51,9 @@ def main():
         
         all = []
         
-        for i in tqdm(range(2, 113)):
+        for i in tqdm(range(2, qty + 1)):
             xpathselector = f'//*[@id="list-container"]/div[4]/div/table/tbody[{i}]/tr[1]/td[4]/a[1]'
-            #imgxpathselector = f'//*[@id="list-container"]/div[4]/div/table/tbody[{i}]/tr[1]/td[3]/a/img'
-            #/html/body/div[4]/div[4]/div/table/tbody[5]/tr[1]/td[3]
-            imgxpathselector = f'//*[@id="list-container"]/div[4]/div/table/tbody[{i}]/tr[1]/td[3]/a'
+            imgxpathselector = f'//*[@id="list-container"]/div[4]/div/table/tbody[{i}]/tr[1]/td[3]/a/img'
             
             current = dom.xpath(xpathselector)[0].text
             current_img = dom.xpath(imgxpathselector)[0].text
@@ -56,7 +65,7 @@ def main():
         
         list_str = ', '.join(all)
         
-        with open('./picker.html', 'r') as file:
+        with open('picker.html', 'r') as file:
             soup = BeautifulSoup(file, features='lxml')
 
         html_str = (str(soup)).split('\n')
@@ -81,11 +90,13 @@ def main():
             outf.write(html_final)
     
     except TimeoutException:
-        browser.quit()
-        root = Tk()
-        root.withdraw()
-        messagebox.showerror('Timeout', 'O site demorou demais para responder, tente novamente.')
-        root.destroy()
+        try:
+            browser.quit()
+        finally:
+            root = Tk()
+            root.withdraw()
+            messagebox.showerror('Timeout', 'MAL took too long to respond, try again.')
+            root.destroy()
     
 if __name__ == '__main__':
     main()
