@@ -1,4 +1,4 @@
-import re, sys, html, requests
+import re, sys, html, requests, os
 from tqdm import tqdm
 from lxml import etree
 from bs4 import BeautifulSoup
@@ -43,7 +43,6 @@ def GUI():
 def tag_cleanup(html):
     html = str(html)
     cleanr = re.compile('<.*?>')
-    #return re.sub(cleanr, '', html)
     string = (re.sub(cleanr, '', html))
     string = string.replace('\n', '')
     string = string.replace('\t', '')
@@ -71,25 +70,15 @@ def main():
         OPTIONS.add_experimental_option('excludeSwitches', ['enable-logging'])
         browser = webdriver.Chrome(PATH, options=OPTIONS)
     
-    try:
-        browser.get(url_user)
-        WebDriverWait(browser, 10).until(expected_conditions.presence_of_element_located((By.CLASS_NAME, 'completed')))
-        source = browser.page_source
-        soup = BeautifulSoup(source, 'html.parser')
-        dom = etree.HTML(str(soup))
-        xpathselector = '//*[@id="statistics"]/div[1]/div[1]/div[3]/ul[1]/li[2]/span'
-        qty = int(dom.xpath(xpathselector)[0].text)
-        
+    try:  
         browser.get(url_list)
         WebDriverWait(browser, 10).until(expected_conditions.presence_of_element_located((By.CLASS_NAME, 'image')))
         source = browser.page_source
         browser.close()
         
         soup = BeautifulSoup(source, 'html.parser')
-        dom = etree.HTML(str(soup))
         
         all = []
-        imgs = []
         
         for anime in soup.find_all('tr', class_ = 'list-table-data'):
             image = anime.find_all('img', src=True, class_ = 'hover-info')[0]['src']
@@ -127,11 +116,13 @@ def main():
             s = '    ' + list_str
             html_str[write_index] = s
             
-        html_final = ('\n'.join(html_str)).encode('utf8')
-        
-        with open('picker.html', 'wb') as outf:
-            outf.truncate(0)
-            outf.write(html_final)
+            html_final = ('\n'.join(html_str)).encode('utf8')
+            
+            with open('picker.html', 'wb') as outf:
+                outf.truncate(0)
+                outf.write(html_final)
+                
+            os.startfile('picker.html')
     
     except TimeoutException:
         try:
